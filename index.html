@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="FitFuel - personal food, walking, workout and calorie-deficit tracker">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <title>FitFuel</title>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">PERSONAL FITNESS TRACKER</div>
+      <h1>FitFuel <span class="v2">V2</span></h1>
+    </div>
+    <button id="installBtn" class="ghost hidden">Install</button>
+  </header>
+
+  <main>
+    <section id="dashboard" class="screen active">
+      <div class="date-row">
+        <button class="icon-btn" onclick="changeDate(-1)">‹</button>
+        <strong id="dateLabel"></strong>
+        <button class="icon-btn" onclick="changeDate(1)">›</button>
+      </div>
+
+      <div class="hero-card">
+        <div class="ring"><div><span id="deficitValue">0</span><small>kcal<br>balance</small></div></div>
+        <div class="hero-copy">
+          <span id="statusPill" class="pill neutral">Add your data</span>
+          <h2 id="heroTitle">Today's balance</h2>
+          <p id="heroText">Log food, walking and workouts to see your calorie balance.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><span>🍽️ Intake</span><b id="intake">0</b><small>kcal</small></div>
+        <div class="stat"><span>🔥 Burn</span><b id="burn">0</b><small>kcal</small></div>
+        <div class="stat"><span>🚶 Steps</span><b id="steps">0</b><small>steps</small></div>
+        <div class="stat"><span>📍 Distance</span><b id="distance">0</b><small>km</small></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Today's nutrition</h3><button onclick="openModal('foodModal')">+ Add</button></div>
+        <div class="macro-bar"><i id="proteinBar"></i><i id="carbBar"></i><i id="fatBar"></i></div>
+        <div class="macro-legend">
+          <span>Protein <b id="protein">0g</b></span>
+          <span>Carbs <b id="carbs">0g</b></span>
+          <span>Fat <b id="fat">0g</b></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Activity</h3><button onclick="openModal('activityModal')">+ Add</button></div>
+        <div id="activitySummary" class="empty">No activity logged yet.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Goal</h3><button onclick="showScreen('profile')">Edit</button></div>
+        <div class="goal-row"><span>Daily calorie target</span><b id="target">—</b></div>
+        <div class="goal-row"><span>Target deficit</span><b id="goalDeficit">—</b></div>
+      </div>
+    </section>
+
+    <section id="food" class="screen">
+      <div class="section-title"><div><h2>Food</h2><p>Unlimited manual entries</p></div><button class="primary" onclick="openModal('foodModal')">+ Add food</button></div>
+      <div id="foodList"></div>
+    </section>
+
+    <section id="activity" class="screen">
+      <div class="section-title"><div><h2>Activity</h2><p>Walking + workouts</p></div><button class="primary" onclick="openModal('activityModal')">+ Log activity</button></div>
+      <div id="activityList"></div>
+    </section>
+
+    <section id="insights" class="screen">
+  <div class="section-title"><div><h2>Insights</h2><p>Deficit, protein and diet guidance</p></div></div>
+  <div class="card"><h3>Today's recommendation</h3><div id="recommendation" class="recommendation"></div></div>
+  <div class="card"><h3>7-day averages</h3><div id="averages"></div></div>
+  <div class="card"><h3>Suggested diet</h3><div id="dietPlan"></div></div>
+</section>
+
+<section id="history" class="screen">
+      <div class="section-title"><div><h2>History</h2><p>Track your trend</p></div></div>
+      <div class="card">
+        <div class="history-head"><span>Last 14 days</span><button onclick="exportData()">Export data</button></div>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <section id="profile" class="screen">
+      <div class="section-title"><div><h2>Your profile</h2><p>Used for calorie estimates</p></div></div>
+      <div class="card form-card">
+        <label>Name<input id="pName" placeholder="Your name"></label>
+        <div class="two"><label>Age<input id="pAge" type="number" min="10" max="100"></label><label>Sex<select id="pSex"><option value="male">Male</option><option value="female">Female</option></select></label></div>
+        <div class="two"><label>Weight (kg)<input id="pWeight" type="number" step="0.1"></label><label>Height (cm)<input id="pHeight" type="number" step="0.1"></label></div>
+        <label>Activity level<select id="pActivity"><option value="1.2">Sedentary</option><option value="1.375">Lightly active</option><option value="1.55">Moderately active</option><option value="1.725">Very active</option><option value="1.9">Extremely active</option></select></label>
+        <div class="two"><label>Daily calorie target<input id="pTarget" type="number" min="0"></label><label>Target deficit<input id="pDeficit" type="number" min="0" value="500"></label></div>
+        <button class="primary wide" onclick="saveProfile()">Save profile</button>
+        <p class="note">The app uses Mifflin-St Jeor for BMR and your selected activity multiplier. Exercise calories are estimates, not medical measurements.</p>
+      </div>
+      <div class="card">
+        <h3>Data</h3>
+        <button class="secondary wide" onclick="exportData()">Export JSON backup</button>
+        <label class="file-label">Restore JSON backup<input type="file" accept=".json" onchange="importData(event)"></label>
+        <button class="danger wide" onclick="resetAll()">Delete all data</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="nav-btn active" data-screen="dashboard">🏠<span>Home</span></button>
+    <button class="nav-btn" data-screen="food">🍱<span>Food</span></button>
+    <button class="nav-btn" data-screen="activity">🏃<span>Activity</span></button>
+    <button class="nav-btn" data-screen="insights">🧠<span>Insights</span></button><button class="nav-btn" data-screen="history">📊<span>History</span></button>
+    <button class="nav-btn" data-screen="profile">⚙️<span>Profile</span></button>
+  </nav>
+</div>
+
+<div id="foodModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h3>Add food</h3><button onclick="closeModal('foodModal')">×</button></div>
+  <label>Meal<select id="fMeal"><option>Breakfast</option><option>Lunch</option><option>Snack</option><option>Dinner</option><option>Other</option></select></label>
+  <label>Food name<input id="fName" placeholder="e.g. chapati, idli, paneer bhurji" oninput="foodSuggest(this.value)"></label>
+<div id="foodSuggestions" class="suggestions"></div>
+  <div class="two"><label>Calories<input id="fCal" type="number" min="0"></label><label>Protein (g)<input id="fProtein" type="number" min="0" step="0.1"></label></div>
+  <div class="two"><label>Carbs (g)<input id="fCarbs" type="number" min="0" step="0.1"></label><label>Fat (g)<input id="fFat" type="number" min="0" step="0.1"></label></div>
+  <label>Meal photo (optional)<input id="fPhoto" type="file" accept="image/*"></label>
+  <p class="note">Version 1 stores the photo with the entry. Photo recognition will be added in the next module; for now confirm the nutrition values manually.</p>
+  <button class="primary wide" onclick="addFood()">Save food</button>
+</div></div>
+
+<div id="activityModal" class="modal"><div class="modal-box">
+  <div class="modal-head"><h3>Log activity</h3><button onclick="closeModal('activityModal')">×</button></div>
+  <label>Type<select id="aType"><option value="walking">Walking</option><option value="running">Running</option><option value="cycling">Cycling</option><option value="strength">Strength training</option><option value="surya">Surya Namaskar</option><option value="other">Other workout</option></select></label>
+  <div class="two"><label>Duration (min)<input id="aDuration" type="number" min="0"></label><label>Distance (km)<input id="aDistance" type="number" min="0" step="0.01"></label></div>
+  <div class="two"><label>Steps<input id="aSteps" type="number" min="0"></label><label>Calories burned<input id="aCal" type="number" min="0"></label></div>
+  <label>Notes<input id="aNotes" placeholder="e.g. 50 rounds, 3 sets..."></label>
+  <p class="note">If you enter calories burned, that value is used. Otherwise an estimate is calculated from weight, duration and activity intensity.</p>
+  <button class="primary wide" onclick="addActivity()">Save activity</button>
+</div></div>
+
+<script src="app.js"></script>
+</body>
+</html>
